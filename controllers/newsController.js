@@ -1,6 +1,44 @@
 // src/controllers/newsController.js
 const News = require('../models/News');
 
+// Redis client setup
+let redisClient = null;
+
+// Cache configuration (kept for future use)
+const CACHE_EXPIRY = {
+  PUBLISHED_NEWS: 300, // 5 minutes
+  DASHBOARD_STATS: 180, // 3 minutes
+  SEARCH_RESULTS: 120,  // 2 minutes
+};
+
+// Helper function for cache operations
+const cacheGet = async (key) => {
+  return null; // Always return null when Redis is disabled
+};
+
+const cacheSet = async (key, data, expiry = 300) => {
+  return; // No-op when Redis is disabled
+};
+
+
+const cacheDelete = async (pattern) => {
+  if (!redisClient) return;
+  try {
+    const keys = await redisClient.keys(pattern);
+    if (keys.length > 0) {
+      await redisClient.del(keys);
+    }
+  } catch (error) {
+    console.warn('Cache delete error:', error);
+  }
+};
+
+// Optimized database queries with proper indexing hints
+const optimizeQuery = (query) => {
+  // Add hints for MongoDB to use proper indexes
+  return query.hint({ status: 1, createdAt: -1 });
+};
+
 exports.getAllNews = async (req, res) => {
   try {
     const { category, status, search, page = 1, limit = 10 } = req.query;
@@ -169,4 +207,19 @@ exports.getPublishedNewsById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
+};
+
+// New endpoint for prefetching
+exports.prefetchNews = async (req, res) => {
+  try {
+    res.status(200).json({ message: 'Prefetch not available without Redis' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Cache warming function (no-op without Redis)
+exports.warmCache = async () => {
+  console.log('Cache warming skipped - Redis not available');
+  return;
 };

@@ -9,13 +9,15 @@ const {
   deleteNews,
   getDashboardStats,
   getPublishedNews,
-  getPublishedNewsById
+  getPublishedNewsById,
+  prefetchNews
 } = require('../controllers/newsController');
 const { protect, adminOnly } = require('../middleware/auth');
 
 // Public routes
 router.get('/published', getPublishedNews);
 router.get('/published/:id', getPublishedNewsById); // Using the new function
+router.post('/prefetch', prefetchNews);
 
 // Protected routes (for admins)
 router.get('/', protect, adminOnly, getAllNews);

@@ -1,5 +1,4 @@
 // server.js
-// src/app.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,6 +6,7 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
 const newsRoutes = require('./routes/newsRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const { warmCache } = require('./controllers/newsController');
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +31,7 @@ app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 5000;
+warmCache();
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
