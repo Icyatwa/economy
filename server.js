@@ -32,7 +32,12 @@ const corsOptions = {
       'www.addnfjdnfkdjnjkvdnjkvndfkj.palanomic.com',
       'addnfjdnfkdjnjkvdnjkvndfkj.palanomic.com',
       'https://addnfjdnfkdjnjkvdnjkvndfkj.palanomic.com/',
-      'https://economy-frontend.vercel.app',
+      'https://zemu-admin-panel.vercel.app/',
+      'https://zemu-admin-panel.vercel.app',
+      'https://www.zemu-admin-panel.vercel.app',
+      'https://palanomic-frontend.vercel.app/',
+      'https://palanomic-frontend.vercel.app',
+      'https://www.palanomic-frontend.vercel.app',
       'http://localhost:3000',
     ];
     if (!origin || allowed.includes(origin)) {
