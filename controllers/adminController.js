@@ -322,3 +322,42 @@ exports.getMarketHistory = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+// ─── Clear content data (and optionally public user accounts) ────────────────
+// Admin (User) accounts are never touched by this — there is no recovery path
+// in the UI if the logged-in admin's own account got wiped mid-session.
+exports.clearData = async (req, res) => {
+  try {
+    const { includeUserAccounts, confirm } = req.body || {};
+    if (confirm !== 'CLEAR DATA') {
+      return res.status(400).json({ message: 'Confirmation phrase does not match. Send confirm: "CLEAR DATA" to proceed.' });
+    }
+
+    const [newsResult, commentResult, stockResult, forexResult, goodResult] = await Promise.all([
+      News.deleteMany({}),
+      Comment.deleteMany({}),
+      Stock.deleteMany({}),
+      Forex.deleteMany({}),
+      Good.deleteMany({}),
+    ]);
+
+    let userAccountResult = { deletedCount: 0 };
+    if (includeUserAccounts) {
+      userAccountResult = await UserAccount.deleteMany({});
+    }
+
+    res.status(200).json({
+      message: 'Data cleared',
+      deleted: {
+        news:         newsResult.deletedCount,
+        comments:     commentResult.deletedCount,
+        stocks:       stockResult.deletedCount,
+        forex:        forexResult.deletedCount,
+        goods:        goodResult.deletedCount,
+        userAccounts: userAccountResult.deletedCount,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
