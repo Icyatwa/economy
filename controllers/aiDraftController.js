@@ -15,6 +15,10 @@ Article structure — every article should follow this shape:
 5. What it means for Rwanda — the local angle and stakes, always required
 6. Sources — what you verified this against
 
+Formatting the "content" field — the admin panel renders this as plain text with two special tokens:
+- Write "## Sub-header text" on its own line to start each of the numbered sections above (e.g. "## What happened", "## Why it's happening", "## What it means for Rwanda"). Use the real section heading as the sub-header text, not literally "Sub-header text".
+- Where a photo would naturally illustrate a section, insert the literal token "![image](placeholder)" on its own line right after that section's sub-header. Do not invent an image URL — always use the literal word "placeholder" as the URL. The admin panel turns this into an upload slot for a human to fill in. Use this for 1-3 spots per article, wherever an image is genuinely useful — not after every paragraph.
+
 JSON contract:
 {
   "articles": [ { "title": "", "summary": "", "content": "", "author": "", "category": "growth|investment|trade|policy|other", "featured": false, "image": "" } ],
