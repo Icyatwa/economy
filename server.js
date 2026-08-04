@@ -14,6 +14,7 @@ const marketDataRoutes = require('./routes/marketDataRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const bulkImportRoutes = require('./routes/bulkImportRoutes');
+const aiDraftRoutes = require('./routes/aiDraftRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const { warmCache } = require('./controllers/newsController');
  
@@ -68,6 +69,7 @@ app.use('/api/market',      marketDataRoutes);
 app.use('/api/comments',    commentRoutes);
 app.use('/api/upload',      uploadRoutes);
 app.use('/api/bulk',        bulkImportRoutes);
+app.use('/api/ai-draft',    aiDraftRoutes);
 
 // ── Open Graph / Twitter Card route ──────────────────────────────────────────
 // When X (Twitter) or any crawler visits /article/:id, this returns a full HTML
