@@ -361,3 +361,50 @@ exports.clearData = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+// ─── One-time cleanup: normalize old-format article content ──────────────────
+// Early drafts wrote "Headline: ... / Description: ... / What happened: ..."
+// as literal labels inside the content body, duplicating the title/summary
+// fields. This finds any article still in that shape, drops the duplicate
+// headline/description paragraphs, and turns the section labels into real
+// "## Sub-header" markers. Only touches docs that start with "Headline:" —
+// anything already reformatted (or never in that shape) is left untouched.
+const LEGACY_LABEL_RE = /(Headline|Description|What happened|Why it['’]s happening|What it means for Rwanda|Sources):\s*/gi;
+
+exports.normalizeArticleContent = async (req, res) => {
+  try {
+    const candidates = await News.find({ content: /^\s*Headline:/i });
+    const updated = [];
+
+    for (const doc of candidates) {
+      const matches = [...doc.content.matchAll(LEGACY_LABEL_RE)];
+      if (!matches.length) continue;
+
+      const sections = {};
+      matches.forEach((m, i) => {
+        const key = m[1].toLowerCase().replace(/[’]/g, "'");
+        const start = m.index + m[0].length;
+        const end = i + 1 < matches.length ? matches[i + 1].index : doc.content.length;
+        sections[key] = doc.content.slice(start, end).trim();
+      });
+
+      const parts = [];
+      if (sections['what happened'])              parts.push(`## What happened\n\n${sections['what happened']}`);
+      if (sections["why it's happening"])          parts.push(`## Why it's happening\n\n${sections["why it's happening"]}`);
+      if (sections['what it means for rwanda'])    parts.push(`## What it means for Rwanda\n\n${sections['what it means for rwanda']}`);
+      if (sections['sources'])                     parts.push(`Sources: ${sections['sources']}`);
+
+      if (!parts.length) continue; // couldn't confidently parse — leave it alone
+
+      doc.content = parts.join('\n\n');
+      await doc.save();
+      updated.push({ id: doc._id, title: doc.title });
+    }
+
+    res.status(200).json({
+      message: `Normalized ${updated.length} of ${candidates.length} matching article(s)`,
+      updated,
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
